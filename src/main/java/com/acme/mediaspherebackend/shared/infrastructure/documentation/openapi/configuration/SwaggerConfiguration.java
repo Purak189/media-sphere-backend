@@ -1,4 +1,4 @@
-package com.acme.mediaspherebackend.infrastructure.documentation.openapi.configuration;
+package com.acme.mediaspherebackend.shared.infrastructure.documentation.openapi.configuration;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
