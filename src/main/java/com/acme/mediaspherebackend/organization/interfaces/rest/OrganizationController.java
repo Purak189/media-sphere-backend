@@ -2,6 +2,8 @@ package com.acme.mediaspherebackend.organization.interfaces.rest;
 
 import com.acme.mediaspherebackend.aim.interfaces.acl.IamContextFacade;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
+import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
+import com.acme.mediaspherebackend.organization.domain.model.queries.GetOrganizationById;
 import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 import com.acme.mediaspherebackend.organization.domain.services.OrganizationCommandService;
 import com.acme.mediaspherebackend.organization.domain.services.OrganizationQueryService;
@@ -13,10 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/api/organizations")
@@ -49,5 +48,19 @@ public class OrganizationController {
         var organizationResource = OrganizationResourceFromEntityAssembler.toResourceFromEntity(organization.get());
 
         return new ResponseEntity<>(organizationResource, HttpStatus.CREATED);
+    }
+
+    // @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an organization")
+    @DeleteMapping("/{organizationId}")
+    public ResponseEntity<Void> deleteOrganization(@PathVariable Long organizationId){
+        var organization = this.organizationQueryService.handle(new GetOrganizationById(organizationId));
+
+        if (organization.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        this.organizationCommandService.handle(new DeleteOrganizationCommand(organization.get()));
+        return ResponseEntity.ok().build();
     }
 }
