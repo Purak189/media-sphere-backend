@@ -12,4 +12,6 @@ public interface OrganizationCommandService {
     Optional<Organization> handle(CreateOrganizationCommand command);
     Optional<Organization> handle(UpdateOrganizationCommand command);
     Optional<Organization> handle(DeleteOrganizationCommand command);
+
+    void save(Organization organization);
 }

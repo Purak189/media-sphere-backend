@@ -22,7 +22,7 @@ public class Organization {
     @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "membership", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Membership> memberships =new ArrayList<>();
 
     public Organization(CreateOrganizationCommand command){

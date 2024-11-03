@@ -45,4 +45,9 @@ public class OrganizationCommandServiceImpl implements OrganizationCommandServic
 
         return Optional.of(organization);
     }
+
+    @Override
+    public void save(Organization organization) {
+        this.organizationRepository.save(organization);
+    }
 }

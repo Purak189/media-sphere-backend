@@ -8,6 +8,7 @@ import com.acme.mediaspherebackend.aim.infraestructure.persistence.jpa.repositor
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserQueryServiceImpl implements UserQueryService {
@@ -23,7 +24,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
-    public User handle(GetUserByIdQuery query) {
-        return userRepository.findById(query.userId()).orElse(null);
+    public Optional<User> handle(GetUserByIdQuery query) {
+        return userRepository.findById(query.userId());
     }
 }

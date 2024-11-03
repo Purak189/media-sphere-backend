@@ -3,6 +3,7 @@ package com.acme.mediaspherebackend.organization.interfaces.acl;
 import com.acme.mediaspherebackend.aim.domain.model.aggregates.User;
 import com.acme.mediaspherebackend.aim.interfaces.acl.IamContextFacade;
 import com.acme.mediaspherebackend.organization.domain.model.aggregates.Membership;
+import com.acme.mediaspherebackend.organization.domain.model.aggregates.Organization;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateMembershipCommand;
 import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 import com.acme.mediaspherebackend.organization.domain.services.MembershipCommandService;
@@ -18,11 +19,9 @@ public class MembershipContextFacade {
         this.iamContextFacade = iamContextFacade;
     }
 
-    public Membership createMembership(CreateMembershipCommand command){
-        var user = command.user();
-        var role = command.role();
-
-        var membership = new Membership(user, role);
+    public Membership createMembership(User user, Role role, Organization organization){
+        var command = new CreateMembershipCommand(user, role, organization);
+        var membership = new Membership(command);
 
         this.membershipCommandService.handle(command);
 
