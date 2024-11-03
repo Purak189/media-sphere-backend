@@ -1,11 +1,11 @@
 package com.acme.mediaspherebackend.aim.infraestructure.hashing.bcrypt.services;
 
-import com.acme.mediaspherebackend.aim.infraestructure.hashing.bcrypt.BcryptHashingService;
+import com.acme.mediaspherebackend.aim.infraestructure.hashing.bcrypt.BCryptHashingService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class HashingServiceImpl implements BcryptHashingService {
+public class HashingServiceImpl implements BCryptHashingService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public HashingServiceImpl() {

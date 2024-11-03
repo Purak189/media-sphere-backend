@@ -1,6 +1,7 @@
 package com.acme.mediaspherebackend.aim.application.internal.commandservices;
 
 import com.acme.mediaspherebackend.aim.application.internal.outboundedservices.hashing.HashingService;
+import com.acme.mediaspherebackend.aim.application.internal.outboundedservices.tokens.TokenService;
 import com.acme.mediaspherebackend.aim.domain.model.aggregates.User;
 import com.acme.mediaspherebackend.aim.domain.model.commands.SignInCommand;
 import com.acme.mediaspherebackend.aim.domain.model.commands.SignUpCommand;
@@ -14,11 +15,12 @@ import java.util.Optional;
 @Service
 public class UserCommandServiceImpl implements UserCommandService {
     private final UserRepository userRepository;
-
+    private final TokenService tokenService;
     private final HashingService hashingService;
 
-    public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService) {
+    public UserCommandServiceImpl(UserRepository userRepository, TokenService tokenService, HashingService hashingService) {
         this.userRepository = userRepository;
+        this.tokenService = tokenService;
         this.hashingService = hashingService;
     }
 
@@ -48,6 +50,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (!hashingService.matches(command.password(),user.get().getHashed_password())) {
             throw new IllegalArgumentException("Invalid password");
         }
-        return Optional.of(ImmutablePair.of(user.get(), "token"));
+        var token = tokenService.generateToken(user.get().getEmail());
+        return Optional.of(ImmutablePair.of(user.get(), token));
     }
 }

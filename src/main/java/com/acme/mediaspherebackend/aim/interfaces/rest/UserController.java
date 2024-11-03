@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/api/auth")
+@RequestMapping("/api/v1/auth")
 @Tag(name = "Auth", description = "Operations related to users auth")
 public class UserController {
     private final UserCommandService userCommandService;
@@ -43,7 +43,7 @@ public class UserController {
         }
 
         var authenticateUserResource = AuthenticateUserResourceFromEntityAssembler.toResourceFromEntity(
-                authenticateUser.get().getLeft());
+                authenticateUser.get().getLeft(), authenticateUser.get().getRight());
         return ResponseEntity.ok(authenticateUserResource);
     }
 
