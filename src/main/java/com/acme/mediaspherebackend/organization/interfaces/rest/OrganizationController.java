@@ -62,7 +62,10 @@ public class OrganizationController {
             return ResponseEntity.notFound().build();
         }
 
-        this.organizationCommandService.handle(new DeleteOrganizationCommand(organization.get()));
+        var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
+        var org = organization.get();
+
+        this.organizationCommandService.handle(new DeleteOrganizationCommand(org, user));
         return ResponseEntity.ok().build();
     }
 }

@@ -1,9 +1,11 @@
 package com.acme.mediaspherebackend.organization.application.internal.commandservices;
 
+import com.acme.mediaspherebackend.aim.infraestructure.authorization.sfs.pipeline.UnauthorizedRequestHandlerEntryPoint;
 import com.acme.mediaspherebackend.organization.domain.model.aggregates.Organization;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.UpdateOrganizationCommand;
+import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 import com.acme.mediaspherebackend.organization.domain.services.OrganizationCommandService;
 import com.acme.mediaspherebackend.organization.infraestructure.persistence.jpa.repositories.OrganizationRepository;
 import org.springframework.stereotype.Service;
@@ -40,9 +42,21 @@ public class OrganizationCommandServiceImpl implements OrganizationCommandServic
     @Override
     public Optional<Organization> handle(DeleteOrganizationCommand command) {
         var organization = command.organization();
+        var user = command.user();
+
+        if (user == null){
+            throw new IllegalArgumentException("User not found");
+        }
+
+        var membership = organization.getMemberships().stream()
+                .filter(m -> m.getUser().equals(user) && m.getRole() == Role.CREATOR)
+                .findFirst();
+
+        if (membership.isEmpty()) {
+            throw new IllegalArgumentException("Only owners can delete the organization");
+        }
 
         this.organizationRepository.delete(organization);
-
         return Optional.of(organization);
     }
 
