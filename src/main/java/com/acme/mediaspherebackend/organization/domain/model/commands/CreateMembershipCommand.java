@@ -6,7 +6,6 @@ import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 
 public record CreateMembershipCommand(
         User user,
-        Organization organization,
         Role role
 ) {
 }
