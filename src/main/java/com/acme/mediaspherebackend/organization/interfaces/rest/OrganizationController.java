@@ -42,7 +42,7 @@ public class OrganizationController {
         var createOrganizationCommand = new CreateOrganizationCommand(createOrganizationResource.name(), createOrganizationResource.description(), null);
         var organization = this.organizationCommandService.handle(createOrganizationCommand);
 
-        var user = this.iamContextFacade.getUserById(createOrganizationResource.userId());
+        var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
         var membership = this.membershipContextFacade.createMembership(user, Role.CREATOR, organization.get());
 
         this.organizationCommandService.save(organization.get());
