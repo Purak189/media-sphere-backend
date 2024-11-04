@@ -1,6 +1,5 @@
 package com.acme.mediaspherebackend.organization.application.internal.commandservices;
 
-import com.acme.mediaspherebackend.aim.infraestructure.authorization.sfs.pipeline.UnauthorizedRequestHandlerEntryPoint;
 import com.acme.mediaspherebackend.organization.domain.model.aggregates.Organization;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
@@ -39,7 +38,7 @@ public class OrganizationCommandServiceImpl implements OrganizationCommandServic
         }
 
         var membership = organization.getMemberships().stream()
-                .filter(m -> m.getUser().equals(user) && (m.getRole() == Role.CREATOR || m.getRole() == Role.ADMIN))
+                .filter(m -> m.getUser().equals(user) && (m.getRole() == Role.OWNER || m.getRole() == Role.ADMIN))
                 .findFirst();
 
         if (membership.isEmpty()) {
@@ -63,7 +62,7 @@ public class OrganizationCommandServiceImpl implements OrganizationCommandServic
         }
 
         var membership = organization.getMemberships().stream()
-                .filter(m -> m.getUser().equals(user) && m.getRole() == Role.CREATOR)
+                .filter(m -> m.getUser().equals(user) && m.getRole() == Role.OWNER)
                 .findFirst();
 
         if (membership.isEmpty()) {

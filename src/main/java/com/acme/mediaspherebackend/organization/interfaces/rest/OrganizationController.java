@@ -49,7 +49,7 @@ public class OrganizationController {
         var organization = this.organizationCommandService.handle(createOrganizationCommand);
 
         var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
-        var membership = this.membershipContextFacade.createMembership(user, Role.CREATOR, organization.get());
+        var membership = this.membershipContextFacade.createMembership(user, Role.OWNER, organization.get());
 
         this.organizationCommandService.save(organization.get());
 
@@ -59,7 +59,7 @@ public class OrganizationController {
     }
 
     // @DeleteMapping("/{id}")
-    @Operation(summary = "Delete an organization")
+    @Operation(summary = "Delete an organization if role is OWNER")
     @DeleteMapping("/{organizationId}")
     public ResponseEntity<Void> deleteOrganization(@PathVariable Long organizationId){
         var organization = this.organizationQueryService.handle(new GetOrganizationById(organizationId));
@@ -76,7 +76,7 @@ public class OrganizationController {
     }
 
     // @GetMapping
-    @Operation(summary = "Get all organizations by user")
+    @Operation(summary = "Get all organizations by user if got a membership")
     @GetMapping
     public ResponseEntity<List<OrganizationResource>> getOrganizations() {
         var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
@@ -94,7 +94,7 @@ public class OrganizationController {
     }
 
     // @UpdateMapping
-    @Operation(summary = "Update organization if role is CREATOR or ADMIN")
+    @Operation(summary = "Update organization if role is OWNER or ADMIN")
     @PutMapping("/{organizationId}")
     public ResponseEntity<Void> updateOrganization(@PathVariable Long organizationId, @RequestBody UpdateOrganizationResource updateOrganizationResource){
         var organization = this.organizationQueryService.handle(new GetOrganizationById(organizationId));
