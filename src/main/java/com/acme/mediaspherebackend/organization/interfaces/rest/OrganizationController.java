@@ -4,6 +4,7 @@ import com.acme.mediaspherebackend.aim.interfaces.acl.IamContextFacade;
 import com.acme.mediaspherebackend.organization.domain.model.aggregates.Membership;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
+import com.acme.mediaspherebackend.organization.domain.model.commands.UpdateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.queries.GetOrganizationById;
 import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 import com.acme.mediaspherebackend.organization.domain.services.OrganizationCommandService;
@@ -11,6 +12,7 @@ import com.acme.mediaspherebackend.organization.domain.services.OrganizationQuer
 import com.acme.mediaspherebackend.organization.interfaces.acl.MembershipContextFacade;
 import com.acme.mediaspherebackend.organization.interfaces.rest.resources.CreateOrganizationResource;
 import com.acme.mediaspherebackend.organization.interfaces.rest.resources.OrganizationResource;
+import com.acme.mediaspherebackend.organization.interfaces.rest.resources.UpdateOrganizationResource;
 import com.acme.mediaspherebackend.organization.interfaces.rest.transform.OrganizationResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -91,5 +93,21 @@ public class OrganizationController {
         return ResponseEntity.ok(organizationResources);
     }
 
+    // @UpdateMapping
+    @Operation(summary = "Update organization if role is CREATOR or ADMIN")
+    @PutMapping("/{organizationId}")
+    public ResponseEntity<Void> updateOrganization(@PathVariable Long organizationId, @RequestBody UpdateOrganizationResource updateOrganizationResource){
+        var organization = this.organizationQueryService.handle(new GetOrganizationById(organizationId));
 
+        if(organization.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
+        var updateOrganizationCommand = new UpdateOrganizationCommand(organization.get(), user, updateOrganizationResource.name(), updateOrganizationResource.description());
+
+        this.organizationCommandService.handle(updateOrganizationCommand);
+
+        return ResponseEntity.ok().build();
+    }
 }

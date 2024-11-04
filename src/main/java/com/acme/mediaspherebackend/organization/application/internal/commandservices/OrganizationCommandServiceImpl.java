@@ -32,6 +32,20 @@ public class OrganizationCommandServiceImpl implements OrganizationCommandServic
     @Override
     public Optional<Organization> handle(UpdateOrganizationCommand command) {
         var organization = command.organization();
+        var user = command.user();
+
+        if(user == null){
+            throw new IllegalArgumentException("User not found");
+        }
+
+        var membership = organization.getMemberships().stream()
+                .filter(m -> m.getUser().equals(user) && (m.getRole() == Role.CREATOR || m.getRole() == Role.ADMIN))
+                .findFirst();
+
+        if (membership.isEmpty()) {
+            throw new IllegalArgumentException("Only owners and admins can update the organization");
+        }
+
         organization.setName(command.name());
         organization.setDescription(command.description());
 
