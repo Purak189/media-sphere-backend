@@ -2,7 +2,7 @@ package com.acme.mediaspherebackend.aim.application.internal.queryservices;
 
 import com.acme.mediaspherebackend.aim.domain.model.aggregates.User;
 import com.acme.mediaspherebackend.aim.domain.model.queries.GetAllUsersQuery;
-import com.acme.mediaspherebackend.aim.domain.model.queries.GetUserByEmail;
+import com.acme.mediaspherebackend.aim.domain.model.queries.GetUserByEmailQuery;
 import com.acme.mediaspherebackend.aim.domain.model.queries.GetUserByIdQuery;
 import com.acme.mediaspherebackend.aim.domain.services.UserQueryService;
 import com.acme.mediaspherebackend.aim.infraestructure.persistence.jpa.repositories.UserRepository;
@@ -30,7 +30,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
-    public Optional<User> handle(GetUserByEmail query) {
+    public Optional<User> handle(GetUserByEmailQuery query) {
         return userRepository.findByEmail(query.email());
     }
 }

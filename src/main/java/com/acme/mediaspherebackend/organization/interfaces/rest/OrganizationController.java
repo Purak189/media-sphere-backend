@@ -17,6 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -67,5 +70,23 @@ public class OrganizationController {
 
         this.organizationCommandService.handle(new DeleteOrganizationCommand(org, user));
         return ResponseEntity.ok().build();
+    }
+
+    // @GetMapping
+    @Operation(summary = "Get all organizations by user")
+    @GetMapping
+    public ResponseEntity<List<OrganizationResource>> getOrganizations() {
+        var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
+        var memberships = this.membershipContextFacade.getMembershipsByUser(user);
+
+        var organizations = memberships.stream()
+                .map(membership -> membership.getOrganization())
+                .collect(Collectors.toList());
+
+        var organizationResources = organizations.stream()
+                .map(OrganizationResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(organizationResources);
     }
 }

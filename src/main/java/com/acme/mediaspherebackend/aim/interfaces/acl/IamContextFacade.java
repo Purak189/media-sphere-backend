@@ -1,7 +1,7 @@
 package com.acme.mediaspherebackend.aim.interfaces.acl;
 
 import com.acme.mediaspherebackend.aim.domain.model.aggregates.User;
-import com.acme.mediaspherebackend.aim.domain.model.queries.GetUserByEmail;
+import com.acme.mediaspherebackend.aim.domain.model.queries.GetUserByEmailQuery;
 import com.acme.mediaspherebackend.aim.domain.model.queries.GetUserByIdQuery;
 import com.acme.mediaspherebackend.aim.domain.services.UserCommandService;
 import com.acme.mediaspherebackend.aim.domain.services.UserQueryService;
@@ -31,7 +31,7 @@ public class IamContextFacade {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
             String email = ((UserDetails) principal).getUsername();
-            return this.userQueryService.handle(new GetUserByEmail(email));
+            return this.userQueryService.handle(new GetUserByEmailQuery(email));
         } else {
             throw new IllegalStateException("User not authenticated.");
         }
