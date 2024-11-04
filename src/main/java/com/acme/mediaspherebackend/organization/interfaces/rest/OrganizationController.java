@@ -1,6 +1,7 @@
 package com.acme.mediaspherebackend.organization.interfaces.rest;
 
 import com.acme.mediaspherebackend.aim.interfaces.acl.IamContextFacade;
+import com.acme.mediaspherebackend.organization.domain.model.aggregates.Membership;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.queries.GetOrganizationById;
@@ -80,13 +81,15 @@ public class OrganizationController {
         var memberships = this.membershipContextFacade.getMembershipsByUser(user);
 
         var organizations = memberships.stream()
-                .map(membership -> membership.getOrganization())
-                .collect(Collectors.toList());
+                .map(Membership::getOrganization)
+                .toList();
 
         var organizationResources = organizations.stream()
                 .map(OrganizationResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(organizationResources);
     }
+
+
 }
