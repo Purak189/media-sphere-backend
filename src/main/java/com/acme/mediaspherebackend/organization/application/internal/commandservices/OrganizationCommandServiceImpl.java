@@ -1,9 +1,11 @@
 package com.acme.mediaspherebackend.organization.application.internal.commandservices;
 
+import com.acme.mediaspherebackend.invitation.interfaces.acl.InvitationContextFacade;
 import com.acme.mediaspherebackend.organization.domain.model.aggregates.Organization;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.UpdateOrganizationCommand;
+import com.acme.mediaspherebackend.organization.domain.model.commands.ValidateUserRoleCommand;
 import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 import com.acme.mediaspherebackend.organization.domain.services.OrganizationCommandService;
 import com.acme.mediaspherebackend.organization.infraestructure.persistence.jpa.repositories.OrganizationRepository;
@@ -71,6 +73,26 @@ public class OrganizationCommandServiceImpl implements OrganizationCommandServic
 
         this.organizationRepository.delete(organization);
         return Optional.of(organization);
+    }
+
+    @Override
+    public boolean handle(ValidateUserRoleCommand command) {
+        var organization = command.organization();
+        var user = command.user();
+
+        if (user == null){
+            throw new IllegalArgumentException("User not found");
+        }
+
+        var membership = organization.getMemberships().stream()
+                .filter(m -> m.getUser().equals(user) && (m.getRole() == Role.OWNER || m.getRole() == Role.ADMIN))
+                .findFirst();
+
+        if (membership.isEmpty()) {
+            throw new IllegalArgumentException("Only owners and admins can create an invitation id");
+        }
+
+        return true;
     }
 
     @Override

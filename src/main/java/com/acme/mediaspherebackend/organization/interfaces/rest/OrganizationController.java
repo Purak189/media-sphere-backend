@@ -1,10 +1,12 @@
 package com.acme.mediaspherebackend.organization.interfaces.rest;
 
 import com.acme.mediaspherebackend.aim.interfaces.acl.IamContextFacade;
+import com.acme.mediaspherebackend.invitation.interfaces.acl.InvitationContextFacade;
 import com.acme.mediaspherebackend.organization.domain.model.aggregates.Membership;
 import com.acme.mediaspherebackend.organization.domain.model.commands.CreateOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.DeleteOrganizationCommand;
 import com.acme.mediaspherebackend.organization.domain.model.commands.UpdateOrganizationCommand;
+import com.acme.mediaspherebackend.organization.domain.model.commands.ValidateUserRoleCommand;
 import com.acme.mediaspherebackend.organization.domain.model.queries.GetOrganizationById;
 import com.acme.mediaspherebackend.organization.domain.model.valueobjects.Role;
 import com.acme.mediaspherebackend.organization.domain.services.OrganizationCommandService;
@@ -12,8 +14,10 @@ import com.acme.mediaspherebackend.organization.domain.services.OrganizationQuer
 import com.acme.mediaspherebackend.organization.interfaces.acl.MembershipContextFacade;
 import com.acme.mediaspherebackend.organization.interfaces.rest.resources.CreateOrganizationResource;
 import com.acme.mediaspherebackend.organization.interfaces.rest.resources.OrganizationResource;
+import com.acme.mediaspherebackend.organization.interfaces.rest.resources.OrganizationWithInvitationCodeResource;
 import com.acme.mediaspherebackend.organization.interfaces.rest.resources.UpdateOrganizationResource;
 import com.acme.mediaspherebackend.organization.interfaces.rest.transform.OrganizationResourceFromEntityAssembler;
+import com.acme.mediaspherebackend.organization.interfaces.rest.transform.OrganizationWithInvitationCodeResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -33,12 +37,14 @@ public class OrganizationController {
     private final OrganizationQueryService organizationQueryService;
     private final IamContextFacade iamContextFacade;
     private final MembershipContextFacade membershipContextFacade;
+    private final InvitationContextFacade invitationContextFacade;
 
-    public OrganizationController(OrganizationCommandService organizationCommandService, OrganizationQueryService organizationQueryService, IamContextFacade iamContextFacade, MembershipContextFacade membershipContextFacade) {
+    public OrganizationController(OrganizationCommandService organizationCommandService, OrganizationQueryService organizationQueryService, IamContextFacade iamContextFacade, MembershipContextFacade membershipContextFacade, InvitationContextFacade invitationContextFacade) {
         this.organizationCommandService = organizationCommandService;
         this.organizationQueryService = organizationQueryService;
         this.iamContextFacade = iamContextFacade;
         this.membershipContextFacade = membershipContextFacade;
+        this.invitationContextFacade = invitationContextFacade;
     }
 
     // @PostMapping
@@ -109,5 +115,30 @@ public class OrganizationController {
         this.organizationCommandService.handle(updateOrganizationCommand);
 
         return ResponseEntity.ok().build();
+    }
+
+    // @PostMapping("/{id}")
+    @Operation(summary = "Get invitation code by organization id if role is OWNER or ADMIN")
+    @PostMapping("/{organizationId}/invitation-code")
+    public ResponseEntity<OrganizationWithInvitationCodeResource> createInvitationCode(@PathVariable Long organizationId){
+        var organization = this.organizationQueryService.handle(new GetOrganizationById(organizationId));
+
+        if(organization.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        var user = this.iamContextFacade.getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated."));
+        var org = organization.get();
+        var validateUserRoleCommand = new ValidateUserRoleCommand(org, user);
+
+        if (!this.organizationCommandService.handle(validateUserRoleCommand)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        var invitationCode = this.invitationContextFacade.createInvitationCodeByOrg(org);
+
+        var organizationWithInvitatioCodeResource = OrganizationWithInvitationCodeResourceFromEntityAssembler.toResourceFromEntity(org,invitationCode);
+
+        return new ResponseEntity<>(organizationWithInvitatioCodeResource, HttpStatus.CREATED);
     }
 }
