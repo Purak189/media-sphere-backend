@@ -5,6 +5,6 @@ import com.acme.mediaspherebackend.organization.interfaces.rest.resources.Organi
 
 public class OrganizationResourceFromEntityAssembler {
     public static OrganizationResource toResourceFromEntity(Organization organization){
-        return new OrganizationResource(organization.getOrganization_id(), organization.getName(), organization.getDescription());
+        return new OrganizationResource(organization.getId(), organization.getName(), organization.getDescription());
     }
 }

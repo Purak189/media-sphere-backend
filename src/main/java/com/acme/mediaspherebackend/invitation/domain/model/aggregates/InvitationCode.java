@@ -20,7 +20,7 @@ public class InvitationCode {
     private String code;
 
     @OneToOne
-    @JoinColumn(name = "organization_id", nullable = false)
+    @JoinColumn(name = "organization_id", referencedColumnName = "id", nullable = false)
     private Organization organization;
 
     @Column(nullable = false)

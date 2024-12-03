@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InvitationCodeRepository extends JpaRepository<InvitationCode, Long> {
     boolean existsByCode(String code);
+    boolean existsByOrganization_Id(Long organizationId);
+    InvitationCode findByOrganization_Id(Long organizationId);
 }

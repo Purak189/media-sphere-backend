@@ -6,6 +6,6 @@ import com.acme.mediaspherebackend.organization.interfaces.rest.resources.Organi
 
 public class OrganizationWithInvitationCodeResourceFromEntityAssembler {
     public static OrganizationWithInvitationCodeResource toResourceFromEntity(Organization organization, InvitationCode invitationCode){
-        return new OrganizationWithInvitationCodeResource(organization.getOrganization_id(), invitationCode.getCode(), invitationCode.getExpired_at());
+        return new OrganizationWithInvitationCodeResource(organization.getId(), invitationCode.getCode(), invitationCode.getExpired_at());
     }
 }
